@@ -1,0 +1,11 @@
+@use '~normalize.css/normalize';
+@use './abstract/colors';
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@100;400;700&display=swap');
+
+body {
+	font-family: 'Roboto', sans-serif;
+	font-weight: 400;
+	font-size: 20px;
+	background-color: rgb(40, 40, 87);
+	color: colors.$clr-base;
+}
