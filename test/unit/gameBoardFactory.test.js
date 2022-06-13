@@ -37,26 +37,37 @@ describe('gameBoard Tests', () => {
 		const ship2 = shipFactory(2);
 		const ship3 = shipFactory(3);
 		const ship4 = shipFactory(4);
+
+		const ship5 = shipFactory(2);
+		const ship6 = shipFactory(3);
+		const ship7 = shipFactory(4);
+		const ship8 = shipFactory(5);
+
 		testBoard.placeShip(ship4, [0, 0], 'horizontal');
-
-		const visualBoard = Array(10)
-			.fill(0)
-			.map(() => Array(10).fill(0));
-		for (let i = 0; i < 9; i++) {
-			for (let j = 0; j < 9; j++) {
-				visualBoard[i][j] = testBoard.cell[i][j].occupancy.shipSegment;
-			}
-		}
-
 		testBoard.placeShip(ship2, [2, 3], 'horizontal');
-		// testBoard.placeShip(ship3, [7, 9], 'horizontal');
-		// testBoard.placeShip(ship1, [0, 5], 'horizontal');
+		testBoard.placeShip(ship3, [7, 9], 'horizontal');
+		testBoard.placeShip(ship1, [0, 5], 'horizontal');
 
-		it.skip('places ships in ships list', () => {
-			expect(testBoard.ships.length).toBe(4);
+		testBoard.placeShip(ship5, [0, 2], 'vertical');
+		testBoard.placeShip(ship6, [5, 0], 'vertical');
+		testBoard.placeShip(ship7, [7, 4], 'vertical');
+		testBoard.placeShip(ship8, [9, 3], 'vertical');
+
+		// const visualBoard = Array(10)
+		// 	.fill(0)
+		// 	.map(() => Array(10).fill(0));
+		// for (let i = 0; i < 10; i++) {
+		// 	for (let j = 0; j < 10; j++) {
+		// 		visualBoard[i][j] = testBoard.cell[i][j].occupancy.occupied;
+		// 	}
+		// }
+
+		it('places ships in ships list', () => {
+			expect(testBoard.ships.length).toBe(8);
 			expect(testBoard.ships[0]).toBe(ship4);
 			expect(testBoard.ships[1]).toBe(ship2);
 			expect(testBoard.ships[2]).toBe(ship3);
+			expect(testBoard.ships[7]).toBe(ship8);
 		});
 
 		it.each([
@@ -68,21 +79,42 @@ describe('gameBoard Tests', () => {
 			[2, 3, ship2],
 			[3, 3, ship2],
 
-			// [7, 9, ship3],
-			// [8, 9, ship3],
-			// [9, 9, ship3],
+			[7, 9, ship3],
+			[8, 9, ship3],
+			[9, 9, ship3],
 
-			// [0, 5, ship1],
-			// [1, 5, ship1],
-			// [2, 5, ship1],
-			// [3, 5, ship1],
-			// [4, 5, ship1],
+			[0, 5, ship1],
+			[1, 5, ship1],
+			[2, 5, ship1],
+			[3, 5, ship1],
+			[4, 5, ship1],
 		])('at coords %i,%i ship is placed horizontally', (x, y, ship) => {
 			expect(testBoard.cell[x][y].occupancy.occupied).toBe(1);
 			expect(testBoard.cell[x][y].occupancy.ship).toBe(ship);
 		});
 
-		it.todo('at coords %i,%i ship %i is placed vertically');
+		it.each([
+			[0, 2, ship5],
+			[0, 3, ship5],
+
+			[5, 0, ship6],
+			[5, 1, ship6],
+			[5, 2, ship6],
+
+			[7, 4, ship7],
+			[7, 5, ship7],
+			[7, 6, ship7],
+			[7, 7, ship7],
+
+			[9, 3, ship8],
+			[9, 4, ship8],
+			[9, 5, ship8],
+			[9, 6, ship8],
+		])('at coords %i,%i ship %i is placed vertically', (x, y, ship) => {
+			expect(testBoard.cell[x][y].occupancy.occupied).toBe(1);
+			expect(testBoard.cell[x][y].occupancy.ship).toBe(ship);
+		});
+
 		it.todo('no place zone is correct around ship %i');
 		it.todo('ship# %i segments are placed correctly');
 		it.todo('doesnt place ships on/near other ships');
