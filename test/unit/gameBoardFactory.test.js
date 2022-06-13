@@ -61,6 +61,7 @@ describe('gameBoard Tests', () => {
 		// 		visualBoard[i][j] = testBoard.cell[i][j].occupancy.occupied;
 		// 	}
 		// }
+		// console.log(visualBoard);
 
 		it('places ships in ships list', () => {
 			expect(testBoard.ships.length).toBe(8);
@@ -116,7 +117,21 @@ describe('gameBoard Tests', () => {
 		});
 
 		it.todo('no place zone is correct around ship %i');
-		it.todo('ship# %i segments are placed correctly');
+
+		it.each([
+			[0, 0, 0],
+			[1, 0, 1],
+			[2, 0, 2],
+			[9, 9, 2],
+			[9, 3, 0],
+			[9, 7, 4],
+			[7, 9, 0],
+			[5, 0, 0],
+			[5, 1, 1],
+			[5, 2, 2],
+		])('ship segment at %i, %i is %i', (x, y, segment) => {
+			expect(testBoard.cell[x][y].occupancy.shipSegment).toBe(segment);
+		});
 		it.todo('doesnt place ships on/near other ships');
 		it.todo('doesnt place ships ouside of borders');
 	});
