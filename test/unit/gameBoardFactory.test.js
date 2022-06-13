@@ -31,40 +31,55 @@ describe('gameBoard Tests', () => {
 	});
 
 	describe('Ship placement tests', () => {
-		beforeAll(() => {
-			const testBoard = gameBoardFactory(10);
-			const ship2 = shipFactory(2);
-			const ship3 = shipFactory(3);
-			const ship4 = shipFactory(4);
-			testBoard.placeShip(ship4, [0, 0], 'horizontal');
-			testBoard.placeShip(ship2, [2, 3], 'horizontal');
-			testBoard.placeShip(ship3, [7, 9], 'horizontal');
-		});
+		beforeAll(() => {});
+		const testBoard = gameBoardFactory(10);
+		const ship1 = shipFactory(5);
+		const ship2 = shipFactory(2);
+		const ship3 = shipFactory(3);
+		const ship4 = shipFactory(4);
+		testBoard.placeShip(ship4, [0, 0], 'horizontal');
 
-		it('places ships in ships list', () => {
-			expect(testBoard.ships.length).toBe(3);
+		const visualBoard = Array(10)
+			.fill(0)
+			.map(() => Array(10).fill(0));
+		for (let i = 0; i < 9; i++) {
+			for (let j = 0; j < 9; j++) {
+				visualBoard[i][j] = testBoard.cell[i][j].occupancy.shipSegment;
+			}
+		}
+
+		testBoard.placeShip(ship2, [2, 3], 'horizontal');
+		// testBoard.placeShip(ship3, [7, 9], 'horizontal');
+		// testBoard.placeShip(ship1, [0, 5], 'horizontal');
+
+		it.skip('places ships in ships list', () => {
+			expect(testBoard.ships.length).toBe(4);
 			expect(testBoard.ships[0]).toBe(ship4);
 			expect(testBoard.ships[1]).toBe(ship2);
 			expect(testBoard.ships[2]).toBe(ship3);
 		});
 
 		it.each([
-			[0, 0, 0],
-			[1, 0, 0],
-			[2, 0, 0],
-			[3, 0, 0],
+			[0, 0, ship4],
+			[1, 0, ship4],
+			[2, 0, ship4],
+			[3, 0, ship4],
 
-			[2, 3, 1],
-			[3, 3, 1],
+			[2, 3, ship2],
+			[3, 3, ship2],
 
-			[7, 9, 2],
-			[8, 9, 2],
-			[9, 9, 2],
-		])('at coords %i,%i ship %i is placed horizontally', (x, y, ship) => {
-			expect(testBoard.cell[x][y].occupancy).toEqual({
-				occupied: 1,
-				ship,
-			});
+			// [7, 9, ship3],
+			// [8, 9, ship3],
+			// [9, 9, ship3],
+
+			// [0, 5, ship1],
+			// [1, 5, ship1],
+			// [2, 5, ship1],
+			// [3, 5, ship1],
+			// [4, 5, ship1],
+		])('at coords %i,%i ship is placed horizontally', (x, y, ship) => {
+			expect(testBoard.cell[x][y].occupancy.occupied).toBe(1);
+			expect(testBoard.cell[x][y].occupancy.ship).toBe(ship);
 		});
 
 		it.todo('at coords %i,%i ship %i is placed vertically');

@@ -10,14 +10,30 @@ export default (boardSize) => {
 			validForPlacement: 1,
 		};
 
-		const board = new Array(boardSize).fill(
-			new Array(boardSize).fill(initialContent)
-		);
+		const board = Array(boardSize)
+			.fill(0)
+			.map(() =>
+				Array(boardSize).fill(
+					JSON.parse(JSON.stringify(initialContent))
+				)
+			);
 		return board;
 	}
 
 	const cell = boardInit(boardSize);
 	const ships = [];
 
-	return { cell, ships };
+	function placeShip(ship, coords, orientation) {
+		ships.push(ship);
+
+		if (orientation === 'horizontal') {
+			for (let index = 0; index < ship.length; index += 1) {
+				const currentCell = cell[coords[0] + index][coords[1]];
+				currentCell.occupancy.occupied = 1;
+				currentCell.occupancy.ship = ship;
+				currentCell.occupancy.shipSegment = index;
+			}
+		}
+	}
+	return { cell, ships, placeShip };
 };
