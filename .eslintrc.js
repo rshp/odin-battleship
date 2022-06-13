@@ -4,7 +4,7 @@ module.exports = {
 		es2021: true,
 		// 'jest/globals': true,
 	},
-	extends: ['airbnb-base', 'plugin:jest/recommended'],
+	extends: ['airbnb-base', 'plugin:jest/recommended', 'prettier'],
 	parserOptions: {
 		ecmaVersion: 'latest',
 		sourceType: 'module',
