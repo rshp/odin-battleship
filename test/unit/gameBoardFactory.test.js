@@ -5,14 +5,11 @@ describe('gameBoard Tests', () => {
 	beforeAll(() => {});
 
 	describe('Board initialization tests', () => {
-		it.each([10, 9], [15, 14])(
-			'creates board array of correct size',
-			(a, b) => {
-				const testBoard = gameBoardFactory(a);
-				expect(testBoard.cell[0].length).toBe(b);
-				expect(testBoard.cell[a - 1].length).toBe(b);
-			}
-		);
+		it.each([[10], [15]])('creates board array of correct size', (a) => {
+			const testBoard = gameBoardFactory(a);
+			expect(testBoard.cell[0].length).toBe(a);
+			expect(testBoard.cell[a - 1].length).toBe(a);
+		});
 		it('initializes each board cell with required objects', () => {
 			const testBoard = gameBoardFactory(10);
 			const cellContent = {
