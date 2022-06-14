@@ -25,8 +25,9 @@ export default (boardSize) => {
 
 	function placeShip(ship, coords, orientation) {
 		ships.push(ship);
-		_markShipOccupancy(ship, coords, orientation);
-		_markValidPlacement(ship, coords, orientation);
+		const shipCells = _selectShipCells(ship, coords, orientation);
+		_markCellsOccupancy(shipCells, ship);
+		_markValidPlacement(shipCells);
 	}
 
 	function _markValidPlacement(ship, coords, orientation) {
@@ -50,8 +51,7 @@ export default (boardSize) => {
 		return selectedCells;
 	}
 
-	function _markShipOccupancy(ship, coords, orientation) {
-		const shipCells = _selectShipCells(ship, coords, orientation);
+	function _markCellsOccupancy(shipCells, ship) {
 		shipCells.forEach((cell, index) => {
 			cell.occupancy.occupied = 1;
 			cell.occupancy.ship = ship;
