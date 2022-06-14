@@ -12,7 +12,7 @@ describe('gameBoard Tests', () => {
 		});
 		it('initializes each board cell with required objects', () => {
 			const testBoard = gameBoardFactory(10);
-			const cellContent = {
+			const cellContent1 = {
 				occupancy: {
 					occupied: 0,
 					ship: null,
@@ -20,9 +20,30 @@ describe('gameBoard Tests', () => {
 				},
 				wasHit: 0,
 				validForPlacement: 1,
+				boardCoordinates: {
+					x: 0,
+					y: 0,
+				},
 			};
-			expect(testBoard.cell[0][0]).toEqual(cellContent);
-			expect(testBoard.cell[9][9]).toEqual(cellContent);
+			const cellContent2 = {
+				occupancy: {
+					occupied: 0,
+					ship: null,
+					shipSegment: null,
+				},
+				wasHit: 0,
+				validForPlacement: 1,
+				boardCoordinates: {
+					x: 9,
+					y: 9,
+				},
+			};
+			expect(testBoard.cell[0][0]).toEqual(cellContent1);
+			expect(testBoard.cell[9][9]).toEqual(cellContent2);
+			expect(testBoard.cell[5][9].boardCoordinates).toEqual({
+				x: 5,
+				y: 9,
+			});
 		});
 		it('initializes ships list', () => {
 			const testBoard = gameBoardFactory(10);
