@@ -38,7 +38,50 @@ export default (boardSize) => {
 		_markValidPlacement(shipCells);
 	}
 
-	function _markValidPlacement(shipCells) {}
+	function _isOutsideOfBorders(ship, coords, orientation) {
+		if (
+			coords[0] < 0 ||
+			coords[1] < 0 ||
+			coords[0] > boardSize - 1 ||
+			coords[1] > boardSize - 1
+		)
+			return true;
+		//unfinished
+	}
+
+	function _markValidPlacement(shipCells) {
+		shipCells.forEach((item) => {
+			_markCellsAround(item, boardSize);
+		});
+	}
+
+	function _markCellsAround(currentCell, boardSize) {
+		const x = currentCell.boardCoordinates.x;
+		const y = currentCell.boardCoordinates.y;
+		if (x > 0) {
+			cell[x - 1][y].validForPlacement = 0;
+			if (y > 0) {
+				cell[x][y - 1].validForPlacement = 0;
+				cell[x - 1][y - 1].validForPlacement = 0;
+			}
+			if (y < boardSize - 1) {
+				cell[x][y + 1].validForPlacement = 0;
+				cell[x - 1][y + 1].validForPlacement = 0;
+			}
+		}
+
+		if (x < boardSize - 1) {
+			cell[x + 1][y].validForPlacement = 0;
+			if (y > 0) {
+				cell[x][y - 1].validForPlacement = 0;
+				cell[x + 1][y - 1].validForPlacement = 0;
+			}
+			if (y < boardSize - 1) {
+				cell[x][y + 1].validForPlacement = 0;
+				cell[x + 1][y + 1].validForPlacement = 0;
+			}
+		}
+	}
 
 	function _selectShipCells(ship, coords, orientation) {
 		const selectedCells = [];
