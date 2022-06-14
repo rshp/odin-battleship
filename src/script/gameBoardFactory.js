@@ -25,17 +25,38 @@ export default (boardSize) => {
 
 	function placeShip(ship, coords, orientation) {
 		ships.push(ship);
+		_markShipOccupancy(ship, coords, orientation);
+		_markValidPlacement(ship, coords, orientation);
+	}
 
+	function _markValidPlacement(ship, coords, orientation) {
 		for (let index = 0; index < ship.length; index += 1) {
 			let currentCell;
 			if (orientation === 'horizontal')
 				currentCell = cell[coords[0] + index][coords[1]];
 			if (orientation === 'vertical')
 				currentCell = cell[coords[0]][coords[1] + index];
-			currentCell.occupancy.occupied = 1;
-			currentCell.occupancy.ship = ship;
-			currentCell.occupancy.shipSegment = index;
 		}
+	}
+
+	function _selectShipCells(ship, coords, orientation) {
+		const selectedCells = [];
+		for (let i = 0; i < ship.length; i += 1) {
+			if (orientation === 'horizontal')
+				selectedCells.push(cell[coords[0] + i][coords[1]]);
+			if (orientation === 'vertical')
+				selectedCells.push(cell[coords[0]][coords[1] + i]);
+		}
+		return selectedCells;
+	}
+
+	function _markShipOccupancy(ship, coords, orientation) {
+		const shipCells = _selectShipCells(ship, coords, orientation);
+		shipCells.forEach((cell, index) => {
+			cell.occupancy.occupied = 1;
+			cell.occupancy.ship = ship;
+			cell.occupancy.shipSegment = index;
+		});
 	}
 
 	return { cell, ships, placeShip };
