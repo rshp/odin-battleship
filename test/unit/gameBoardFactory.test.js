@@ -53,15 +53,14 @@ describe('gameBoard Tests', () => {
 		testBoard.placeShip(ship7, [7, 4], 'vertical');
 		testBoard.placeShip(ship8, [9, 3], 'vertical');
 
-		// const visualBoard = Array(10)
-		// 	.fill(0)
-		// 	.map(() => Array(10).fill(0));
-		// for (let i = 0; i < 10; i++) {
-		// 	for (let j = 0; j < 10; j++) {
-		// 		visualBoard[i][j] = testBoard.cell[i][j].occupancy.occupied;
-		// 	}
-		// }
-		// console.log(visualBoard);
+		const visualBoard = Array(10)
+			.fill(0)
+			.map(() => Array(10).fill(0));
+		for (let i = 0; i < 10; i++) {
+			for (let j = 0; j < 10; j++) {
+				visualBoard[i][j] = testBoard.cell[i][j].occupancy.occupied;
+			}
+		}
 
 		it('places ships in ships list', () => {
 			expect(testBoard.ships.length).toBe(8);
@@ -116,7 +115,23 @@ describe('gameBoard Tests', () => {
 			expect(testBoard.cell[x][y].occupancy.ship).toBe(ship);
 		});
 
-		it.todo('no place zone is correct around ship %i');
+		it.each([
+			[0, 0, 0],
+			[0, 1, 0],
+			[2, 2, 0],
+			[9, 9, 0],
+			[9, 2, 0],
+			[8, 3, 0],
+			[6, 8, 0],
+			[1, 2, 0],
+
+			[7, 2, 1],
+			[5, 7, 1],
+			[9, 1, 1],
+			[0, 7, 1],
+		])('at coords %i,%i placement validity is %i', (x, y, expected) => {
+			expect(testBoard.cell[x][y].validForPlacement).toBe(expected);
+		});
 
 		it.each([
 			[0, 0, 0],
