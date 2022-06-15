@@ -34,8 +34,10 @@ export default (boardSize) => {
 	const ships = [];
 
 	function placeShip(ship, coords, orientation) {
-		if (_isOutsideOfBorders(ship, coords, orientation))
-			throw new Error('Placement is outside of borders');
+		// if (_isOutsideOfBorders(ship, coords, orientation))
+		// 	throw new Error('Placement is outside of borders');
+		if (_isInsideInvalidZone(ship, coords, orientation))
+			throw new Error('Placement is too close to other ships');
 
 		ships.push(ship);
 		const shipCells = _selectShipCells(ship, coords, orientation);
@@ -56,6 +58,11 @@ export default (boardSize) => {
 		if (orientation === 'vertical' && coords[1] + ship.length > boardSize)
 			return true;
 		return false;
+	}
+
+	function _isInsideInvalidZone(ship, coords, orientation) {
+		const shipCells = _selectShipCells(ship, coords, orientation);
+		return shipCells.some((shipCell) => shipCell.validForPlacement === 0);
 	}
 
 	function _markValidPlacement(shipCells) {
