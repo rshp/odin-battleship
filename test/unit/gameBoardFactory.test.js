@@ -77,8 +77,8 @@ describe('gameBoard Tests', () => {
 		const visualBoard = Array(10)
 			.fill(0)
 			.map(() => Array(10).fill(0));
-		for (let i = 0; i < 10; i++) {
-			for (let j = 0; j < 10; j++) {
+		for (let i = 0; i < 10; i += 1) {
+			for (let j = 0; j < 10; j += 1) {
 				visualBoard[i][j] = testBoard.cell[i][j].occupancy.occupied;
 			}
 		}
@@ -169,7 +169,26 @@ describe('gameBoard Tests', () => {
 			expect(testBoard.cell[x][y].occupancy.shipSegment).toBe(segment);
 		});
 		it.todo('doesnt place ships on/near other ships');
-		it.todo('doesnt place ships ouside of borders');
+		it('doesnt place ships ouside of borders', () => {
+			expect(() =>
+				testBoard.placeShip(shipFactory(4), [12, 12], 'horizontal')
+			).toThrow();
+			expect(() =>
+				testBoard.placeShip(shipFactory(4), [11, 3], 'horizontal')
+			).toThrow();
+			expect(() =>
+				testBoard.placeShip(shipFactory(4), [7, 3], 'horizontal')
+			).toThrow();
+			expect(() =>
+				testBoard.placeShip(shipFactory(4), [6, 3], 'horizontal')
+			).not.toThrow();
+			expect(() =>
+				testBoard.placeShip(shipFactory(3), [6, 7], 'vertical')
+			).not.toThrow();
+			expect(() =>
+				testBoard.placeShip(shipFactory(4), [3, 7], 'vertical')
+			).toThrow();
+		});
 	});
 
 	describe('receive hit at location tests', () => {

@@ -1,3 +1,5 @@
+/* eslint-disable no-use-before-define */
+/* eslint-disable no-underscore-dangle */
 export default (boardSize) => {
 	function boardInit(size) {
 		const initialContent = {
@@ -32,6 +34,9 @@ export default (boardSize) => {
 	const ships = [];
 
 	function placeShip(ship, coords, orientation) {
+		if (_isOutsideOfBorders(ship, coords, orientation))
+			throw new Error('Placement is outside of borders');
+
 		ships.push(ship);
 		const shipCells = _selectShipCells(ship, coords, orientation);
 		_markCellsOccupancy(shipCells, ship);
@@ -46,18 +51,25 @@ export default (boardSize) => {
 			coords[1] > boardSize - 1
 		)
 			return true;
-		//unfinished
+		if (orientation === 'horizontal' && coords[0] + ship.length > boardSize)
+			return true;
+		if (orientation === 'vertical' && coords[1] + ship.length > boardSize)
+			return true;
+		return false;
 	}
 
 	function _markValidPlacement(shipCells) {
 		shipCells.forEach((item) => {
-			_markCellsAround(item, boardSize);
+			_markCellsAround(item);
 		});
 	}
 
-	function _markCellsAround(currentCell, boardSize) {
-		const x = currentCell.boardCoordinates.x;
-		const y = currentCell.boardCoordinates.y;
+	function _markCellsAround(currentCell) {
+		const [x, y] = [
+			currentCell.boardCoordinates.x,
+			currentCell.boardCoordinates.y,
+		];
+
 		if (x > 0) {
 			cell[x - 1][y].validForPlacement = 0;
 			if (y > 0) {
@@ -95,10 +107,13 @@ export default (boardSize) => {
 	}
 
 	function _markCellsOccupancy(shipCells, ship) {
-		shipCells.forEach((cell, index) => {
-			cell.occupancy.occupied = 1;
-			cell.occupancy.ship = ship;
-			cell.occupancy.shipSegment = index;
+		shipCells.forEach((item, index) => {
+			// eslint-disable-next-line no-param-reassign
+			item.occupancy.occupied = 1;
+			// eslint-disable-next-line no-param-reassign
+			item.occupancy.ship = ship;
+			// eslint-disable-next-line no-param-reassign
+			item.occupancy.shipSegment = index;
 		});
 	}
 
