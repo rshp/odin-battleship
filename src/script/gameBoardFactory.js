@@ -34,8 +34,8 @@ export default (boardSize) => {
 	const ships = [];
 
 	function placeShip(ship, coords, orientation) {
-		// if (_isOutsideOfBorders(ship, coords, orientation))
-		// 	throw new Error('Placement is outside of borders');
+		if (_isOutsideOfBorders(ship, coords, orientation))
+			throw new Error('Placement is outside of borders');
 		if (_isInsideInvalidZone(ship, coords, orientation))
 			throw new Error('Placement is too close to other ships');
 

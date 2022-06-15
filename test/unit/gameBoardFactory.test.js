@@ -2,8 +2,6 @@ import gameBoardFactory from '../../src/script/gameBoardFactory';
 import shipFactory from '../../src/script/shipFactory';
 
 describe('gameBoard Tests', () => {
-	beforeAll(() => {});
-
 	describe('Board initialization tests', () => {
 		it.each([[10], [15]])('creates board array of correct size', (a) => {
 			const testBoard = gameBoardFactory(a);
@@ -73,24 +71,6 @@ describe('gameBoard Tests', () => {
 		testBoard.placeShip(ship6, [5, 0], 'vertical');
 		testBoard.placeShip(ship7, [7, 4], 'vertical');
 		testBoard.placeShip(ship8, [9, 3], 'vertical');
-
-		const visualBoard = Array(10)
-			.fill(0)
-			.map(() => Array(10).fill(0));
-		for (let i = 0; i < 10; i += 1) {
-			for (let j = 0; j < 10; j += 1) {
-				visualBoard[i][j] = testBoard.cell[i][j].occupancy.occupied;
-			}
-		}
-
-		const visualBoard2 = Array(10)
-			.fill(0)
-			.map(() => Array(10).fill(0));
-		for (let i = 0; i < 10; i += 1) {
-			for (let j = 0; j < 10; j += 1) {
-				visualBoard2[i][j] = testBoard.cell[i][j].validForPlacement;
-			}
-		}
 
 		it('places ships in ships list', () => {
 			expect(testBoard.ships.length).toBe(8);
@@ -177,48 +157,50 @@ describe('gameBoard Tests', () => {
 		])('ship segment at %i, %i is %i', (x, y, segment) => {
 			expect(testBoard.cell[x][y].occupancy.shipSegment).toBe(segment);
 		});
-		it('doesnt place ships on/near other ships', () => {
-			expect(() =>
-				testBoard.placeShip(shipFactory(2), [0, 0], 'horizontal')
-			).toThrow();
-			expect(() =>
-				testBoard.placeShip(shipFactory(2), [7, 4], 'vertical')
-			).toThrow();
-			expect(() =>
-				testBoard.placeShip(shipFactory(5), [4, 7], 'horizontal')
-			).toThrow();
-			expect(() =>
-				testBoard.placeShip(shipFactory(3), [7, 0], 'vertical')
-			).not.toThrow();
-			expect(() =>
-				testBoard.placeShip(shipFactory(2), [8, 0], 'vertical')
-			).not.toThrow();
-			// expect(() =>
-			// 	testBoard.placeShip(shipFactory(6), [0, 7], 'horizontal')
-			// ).not.toThrow();
-			// expect(() =>
-			// 	testBoard.placeShip(shipFactory(2), [4, 8], 'horizontal')
-			// ).not.toThrow();
-		});
-		it.skip('doesnt place ships ouside of borders', () => {
+	});
+
+	describe('Ship placement errors', () => {
+		const testBoard = gameBoardFactory(10);
+		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
+		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
+
+		it('doesnt place ships ouside of borders', () => {
+			const errorMessage = 'Placement is outside of borders';
 			expect(() =>
 				testBoard.placeShip(shipFactory(4), [12, 12], 'horizontal')
-			).toThrow();
+			).toThrowError(errorMessage);
 			expect(() =>
-				testBoard.placeShip(shipFactory(4), [11, 3], 'horizontal')
-			).toThrow();
+				testBoard.placeShip(shipFactory(4), [8, 8], 'horizontal')
+			).toThrowError(errorMessage);
 			expect(() =>
-				testBoard.placeShip(shipFactory(4), [7, 3], 'horizontal')
-			).toThrow();
+				testBoard.placeShip(shipFactory(4), [0, 6], 'vertical')
+			).not.toThrowError(errorMessage);
+		});
+
+		const placementValidityMap = new Array(10)
+			.fill(2)
+			.map(() => Array(10).fill(2));
+		for (let i = 0; i < 10; i++) {
+			for (let j = 0; j < 10; j++) {
+				placementValidityMap[i][j] =
+					testBoard.cell[i][j].validForPlacement;
+			}
+		}
+
+		it('doesnt place ships on/near other ships', () => {
+			const errorMessage = 'Placement is too close to other ships';
 			expect(() =>
-				testBoard.placeShip(shipFactory(4), [6, 3], 'horizontal')
-			).not.toThrow();
+				testBoard.placeShip(shipFactory(2), [1, 1], 'horizontal')
+			).toThrowError(errorMessage);
 			expect(() =>
-				testBoard.placeShip(shipFactory(3), [6, 7], 'vertical')
-			).not.toThrow();
+				testBoard.placeShip(shipFactory(2), [6, 6], 'vertical')
+			).toThrowError(errorMessage);
 			expect(() =>
-				testBoard.placeShip(shipFactory(4), [3, 7], 'vertical')
-			).toThrow();
+				testBoard.placeShip(shipFactory(2), [6, 6], 'horizontal')
+			).toThrowError(errorMessage);
+			expect(() =>
+				testBoard.placeShip(shipFactory(2), [9, 8], 'vertical')
+			).not.toThrowError(errorMessage);
 		});
 	});
 
