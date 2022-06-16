@@ -124,5 +124,25 @@ export default (boardSize) => {
 		});
 	}
 
-	return { cell, ships, placeShip };
+	function receiveAttack(coords) {
+		if (
+			coords[0] < 0 ||
+			coords[1] < 0 ||
+			coords[0] > boardSize - 1 ||
+			coords[1] > boardSize - 1
+		)
+			throw new Error('Hit attempt ouside of bounds');
+		const targetCell = cell[coords[0]][coords[1]];
+		if (targetCell.wasHit) throw new Error('Location already hit');
+		targetCell.wasHit = 1;
+		if (!targetCell.occupancy.occupied) {
+			// report miss
+		}
+		if (targetCell.occupancy.occupied) {
+			targetCell.occupancy.ship.hit(targetCell.occupancy.shipSegment);
+			// report ship hit
+		}
+	}
+
+	return { cell, ships, placeShip, receiveAttack };
 };
