@@ -177,16 +177,6 @@ describe('gameBoard Tests', () => {
 			).not.toThrowError(errorMessage);
 		});
 
-		const placementValidityMap = new Array(10)
-			.fill(2)
-			.map(() => Array(10).fill(2));
-		for (let i = 0; i < 10; i++) {
-			for (let j = 0; j < 10; j++) {
-				placementValidityMap[i][j] =
-					testBoard.cell[i][j].validForPlacement;
-			}
-		}
-
 		it('doesnt place ships on/near other ships', () => {
 			const errorMessage = 'Placement is too close to other ships';
 			expect(() =>
@@ -205,17 +195,58 @@ describe('gameBoard Tests', () => {
 	});
 
 	describe('receive hit at location tests', () => {
-		it.todo('records missed locations');
-		it.todo('returns hits and misses');
-		it.todo('transfers hits to ships in array');
+		const testBoard = gameBoardFactory(10);
+		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
+		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
 
-		it.todo('throws on already hit locations');
-		it.todo('throws on out of bounds locations');
+		const placementValidityMap = new Array(10)
+			.fill(2)
+			.map(() => Array(10).fill(2));
+		for (let i = 0; i < 10; i += 1) {
+			for (let j = 0; j < 10; j += 1) {
+				placementValidityMap[i][j] = testBoard.cell[i][j].wasHit;
+			}
+		}
+
+		it('records hit locations', () => {
+			testBoard.receiveAttack([5, 5]);
+			expect(testBoard.cell[5][5].wasHit).toBe(1);
+			testBoard.receiveAttack([9, 9]);
+			expect(testBoard.cell[5][5].wasHit).toBe(1);
+		});
+		it('transfers hits to ships in array', () => {
+			testBoard.receiveAttack([0, 0]);
+			testBoard.receiveAttack([2, 0]);
+			testBoard.receiveAttack([7, 7]);
+			testBoard.receiveAttack([7, 8]);
+			expect(testBoard.ships[0].status).toEqual([
+				true,
+				false,
+				true,
+				false,
+			]);
+			expect(testBoard.ships[1].status).toEqual([true, true]);
+		});
+
+		it('throws on already hit locations', () => {
+			const errorMessage = 'Location already hit';
+			expect(() => testBoard.receiveAttack([0, 0])).toThrowError(
+				errorMessage
+			);
+		});
+
+		it('throws on out of bounds locations', () => {
+			const errorMessage = 'Hit attempt ouside of bounds';
+			expect(() => testBoard.receiveAttack([10, 10])).toThrowError(
+				errorMessage
+			);
+		});
 	});
 
 	describe('Board reports events', () => {
 		it.todo('invalid ship placement attempt');
 		it.todo('invalid hit placement attempt');
+		it.todo('reports hits and misses');
 		it.todo('reports ship that is sunk after last hit on it');
 		it.todo('reports that all ships are sunk');
 	});
