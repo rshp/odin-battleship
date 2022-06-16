@@ -1,5 +1,7 @@
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-underscore-dangle */
+import PubSub from 'pubsub-js';
+
 export default (boardSize) => {
 	function boardInit(size) {
 		const initialContent = {
@@ -142,6 +144,13 @@ export default (boardSize) => {
 			targetCell.occupancy.ship.hit(targetCell.occupancy.shipSegment);
 			// report ship hit
 		}
+	}
+
+	function _messageHandler(message) {
+		const shipPlacementTopic = 'SHIP_PLACEMENT';
+		const hitsMessageTopic = 'HITS_MESSAGE';
+		const sunkShipsTopic = 'SUNK_SHIPS';
+		const winConditionTopic = 'WIN_CONDITION';
 	}
 
 	return { cell, ships, placeShip, receiveAttack };
