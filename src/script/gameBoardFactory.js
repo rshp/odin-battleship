@@ -36,11 +36,18 @@ export default (boardSize) => {
 	const ships = [];
 
 	function placeShip(ship, coords, orientation) {
-		if (_isOutsideOfBorders(ship, coords, orientation))
-			throw new Error('Placement is outside of borders');
-		if (_isInsideInvalidZone(ship, coords, orientation))
-			throw new Error('Placement is too close to other ships');
-
+		if (_isOutsideOfBorders(ship, coords, orientation)) {
+			const errorMessage = 'Placement is outside of borders';
+			PubSub.publish(messageTopics.shipPlacementTopic, errorMessage);
+			// throw new Error(errorMessage);
+			return;
+		}
+		if (_isInsideInvalidZone(ship, coords, orientation)) {
+			const errorMessage = 'Placement is too close to other ships';
+			PubSub.publish(messageTopics.shipPlacementTopic, errorMessage);
+			// throw new Error(errorMessage);
+			return;
+		}
 		ships.push(ship);
 		const shipCells = _selectShipCells(ship, coords, orientation);
 		_markCellsOccupancy(shipCells, ship);
@@ -146,12 +153,12 @@ export default (boardSize) => {
 		}
 	}
 
-	function _messageHandler(message) {
-		const shipPlacementTopic = 'SHIP_PLACEMENT';
-		const hitsMessageTopic = 'HITS_MESSAGE';
-		const sunkShipsTopic = 'SUNK_SHIPS';
-		const winConditionTopic = 'WIN_CONDITION';
-	}
+	const messageTopics = {
+		shipPlacementTopic: 'SHIP_PLACEMENT',
+		hitsMessageTopic: 'HITS_MESSAGE',
+		sunkShipsTopic: 'SUNK_SHIPS',
+		winConditionTopic: 'WIN_CONDITION',
+	};
 
-	return { cell, ships, placeShip, receiveAttack };
+	return { cell, ships, placeShip, receiveAttack, messageTopics };
 };

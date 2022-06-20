@@ -1,3 +1,5 @@
+/* eslint-disable jest/no-done-callback */
+import PubSub from 'pubsub-js';
 import gameBoardFactory from '../../src/script/gameBoardFactory';
 import shipFactory from '../../src/script/shipFactory';
 
@@ -244,7 +246,29 @@ describe('gameBoard Tests', () => {
 	});
 
 	describe('Board reports events', () => {
-		it.todo('invalid ship placement attempt');
+		const testBoard = gameBoardFactory(10);
+		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
+		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
+
+		it('report ship placement outside of borders', (done) => {
+			const expectedMessage = 'Placement is outside of borders';
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(
+				testBoard.messageTopics.shipPlacementTopic,
+				testSubscriber
+			);
+			testBoard.placeShip(shipFactory(2), [11, 0], 'horizontal');
+		});
+
 		it.todo('invalid hit placement attempt');
 		it.todo('reports hits and misses');
 		it.todo('reports ship that is sunk after last hit on it');
