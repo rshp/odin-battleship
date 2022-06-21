@@ -37,21 +37,27 @@ export default (boardSize) => {
 
 	function placeShip(ship, coords, orientation) {
 		if (_isOutsideOfBorders(ship, coords, orientation)) {
-			const errorMessage = 'Placement is outside of borders';
-			PubSub.publish(messageTopics.shipPlacementTopic, errorMessage);
-			// throw new Error(errorMessage);
+			PubSub.publish(
+				messages.shipPlacement.topic,
+				messages.shipPlacement.msg[0]
+			);
 			return;
 		}
 		if (_isInsideInvalidZone(ship, coords, orientation)) {
-			const errorMessage = 'Placement is too close to other ships';
-			PubSub.publish(messageTopics.shipPlacementTopic, errorMessage);
-			// throw new Error(errorMessage);
+			PubSub.publish(
+				messages.shipPlacement.topic,
+				messages.shipPlacement.msg[1]
+			);
 			return;
 		}
 		ships.push(ship);
 		const shipCells = _selectShipCells(ship, coords, orientation);
 		_markCellsOccupancy(shipCells, ship);
 		_markValidPlacement(shipCells);
+		PubSub.publish(
+			messages.shipPlacement.topic,
+			messages.shipPlacement.msg[2]
+		);
 	}
 
 	function _isOutsideOfBorders(ship, coords, orientation) {
@@ -139,26 +145,75 @@ export default (boardSize) => {
 			coords[1] < 0 ||
 			coords[0] > boardSize - 1 ||
 			coords[1] > boardSize - 1
-		)
+		) {
 			throw new Error('Hit attempt ouside of bounds');
+		}
 		const targetCell = cell[coords[0]][coords[1]];
-		if (targetCell.wasHit) throw new Error('Location already hit');
+		if (targetCell.wasHit) {
+			PubSub.publish(
+				messages.hits.topic,
+				messages.hits.msg[1] // report already hit
+			);
+			return;
+		}
 		targetCell.wasHit = 1;
 		if (!targetCell.occupancy.occupied) {
-			// report miss
+			PubSub.publish(
+				messages.hits.topic,
+				messages.hits.msg[3] // report hit miss
+			);
+			return;
 		}
 		if (targetCell.occupancy.occupied) {
 			targetCell.occupancy.ship.hit(targetCell.occupancy.shipSegment);
-			// report ship hit
+			PubSub.publish(messages.hits.topic, messages.hits.msg[2]); // report hit ship
+			_checkShipSunk(targetCell.occupancy.ship);
 		}
 	}
 
-	const messageTopics = {
-		shipPlacementTopic: 'SHIP_PLACEMENT',
-		hitsMessageTopic: 'HITS_MESSAGE',
-		sunkShipsTopic: 'SUNK_SHIPS',
-		winConditionTopic: 'WIN_CONDITION',
+	function _checkShipSunk(ship) {
+		if (ship.isSunk()) {
+			PubSub.publish(messages.sunkShips.topic, messages.sunkShips.msg[0]);
+			_checkWinCondition();
+		}
+	}
+	function _checkWinCondition() {
+		const allShipsSunk = ships.every((ship) => ship.isSunk());
+		if (allShipsSunk) {
+			PubSub.publish(
+				messages.winCondition.topic,
+				messages.winCondition.msg[0]
+			);
+		}
+	}
+
+	const messages = {
+		shipPlacement: {
+			topic: 'SHIP_PLACEMENT',
+			msg: [
+				'Placement is outside of borders',
+				'Placement is too close to other ships',
+				'Placement sucsessful',
+			],
+		},
+		hits: {
+			topic: 'HITS_MESSAGE',
+			msg: [
+				'Invalid coordinates [unused]',
+				'Location already hit',
+				'Successful hit',
+				'Missed hit',
+			],
+		},
+		sunkShips: {
+			topic: 'SUNK_SHIPS',
+			msg: ['Ship sunk'],
+		},
+		winCondition: {
+			topic: 'WIN_CONDITION',
+			msg: ['All ships sunk'],
+		},
 	};
 
-	return { cell, ships, placeShip, receiveAttack, messageTopics };
+	return { cell, ships, placeShip, receiveAttack, messages };
 };

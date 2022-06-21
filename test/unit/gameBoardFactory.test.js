@@ -161,7 +161,7 @@ describe('gameBoard Tests', () => {
 		});
 	});
 
-	describe('Ship placement errors', () => {
+	describe.skip('Ship placement errors', () => {
 		const testBoard = gameBoardFactory(10);
 		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
 		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
@@ -230,7 +230,7 @@ describe('gameBoard Tests', () => {
 			expect(testBoard.ships[1].status).toEqual([true, true]);
 		});
 
-		it('throws on already hit locations', () => {
+		it.skip('throws on already hit locations', () => {
 			const errorMessage = 'Location already hit';
 			expect(() => testBoard.receiveAttack([0, 0])).toThrowError(
 				errorMessage
@@ -249,9 +249,10 @@ describe('gameBoard Tests', () => {
 		const testBoard = gameBoardFactory(10);
 		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
 		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
+		testBoard.receiveAttack([5, 8]);
 
 		it('report ship placement outside of borders', (done) => {
-			const expectedMessage = 'Placement is outside of borders';
+			const expectedMessage = testBoard.messages.shipPlacement.msg[0];
 			expect.assertions(1);
 			const testSubscriber = (topic, message) => {
 				try {
@@ -263,15 +264,157 @@ describe('gameBoard Tests', () => {
 			};
 
 			PubSub.subscribe(
-				testBoard.messageTopics.shipPlacementTopic,
+				testBoard.messages.shipPlacement.topic,
 				testSubscriber
 			);
-			testBoard.placeShip(shipFactory(2), [11, 0], 'horizontal');
+			testBoard.placeShip(shipFactory(2), [9, 0], 'horizontal');
 		});
 
-		it.todo('invalid hit placement attempt');
-		it.todo('reports hits and misses');
+		it('report ship placement too close to other ships', (done) => {
+			const expectedMessage = testBoard.messages.shipPlacement.msg[1];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(
+				testBoard.messages.shipPlacement.topic,
+				testSubscriber
+			);
+			testBoard.placeShip(shipFactory(2), [0, 1], 'horizontal');
+		});
+
+		it('reports successful ship placement', (done) => {
+			const expectedMessage = testBoard.messages.shipPlacement.msg[2];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(
+				testBoard.messages.shipPlacement.topic,
+				testSubscriber
+			);
+			testBoard.placeShip(shipFactory(2), [0, 2], 'horizontal');
+		});
+
+		it('reports already hit locations', (done) => {
+			const expectedMessage = testBoard.messages.hits.msg[1];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(testBoard.messages.hits.topic, testSubscriber);
+			testBoard.receiveAttack([5, 8]);
+		});
+
+		it('reports succsessful hits', (done) => {
+			const expectedMessage = testBoard.messages.hits.msg[2];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(testBoard.messages.hits.topic, testSubscriber);
+			testBoard.receiveAttack([2, 0]);
+		});
+
+		it('reports missed hits', (done) => {
+			const expectedMessage = testBoard.messages.hits.msg[3];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(testBoard.messages.hits.topic, testSubscriber);
+			testBoard.receiveAttack([2, 2]);
+		});
+
 		it.todo('reports ship that is sunk after last hit on it');
 		it.todo('reports that all ships are sunk');
+	});
+
+	describe('Reports sunk ships', () => {
+		const testBoard = gameBoardFactory(10);
+		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
+		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
+		testBoard.receiveAttack([0, 0]);
+		testBoard.receiveAttack([1, 0]);
+		testBoard.receiveAttack([2, 0]);
+
+		it('Reports sunk ships', (done) => {
+			const expectedMessage = testBoard.messages.sunkShips.msg[0];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(
+				testBoard.messages.sunkShips.topic,
+				testSubscriber
+			);
+			testBoard.receiveAttack([3, 0]);
+		});
+	});
+
+	describe('Reports win condition', () => {
+		const testBoard = gameBoardFactory(10);
+		testBoard.placeShip(shipFactory(4), [0, 0], 'horizontal');
+		testBoard.placeShip(shipFactory(2), [7, 7], 'vertical');
+		testBoard.receiveAttack([0, 0]);
+		testBoard.receiveAttack([1, 0]);
+		testBoard.receiveAttack([2, 0]);
+		testBoard.receiveAttack([3, 0]);
+		testBoard.receiveAttack([7, 7]);
+
+		it.only('Reports win condition', (done) => {
+			const expectedMessage = testBoard.messages.winCondition.msg[0];
+			expect.assertions(1);
+			const testSubscriber = (topic, message) => {
+				try {
+					expect(message).toBe(expectedMessage);
+					done();
+				} catch (error) {
+					done(error);
+				}
+			};
+
+			PubSub.subscribe(
+				testBoard.messages.winCondition.topic,
+				testSubscriber
+			);
+			testBoard.receiveAttack([7, 8]);
+		});
 	});
 });
